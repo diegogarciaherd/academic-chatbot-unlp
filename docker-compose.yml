@@ -16,6 +16,8 @@ services:
       - DB_PORT=5432
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
       - QDRANT_URL=http://qdrant:6333
+      - N8N_HOST=n8n
+      - N8N_PORT=5678
       - N8N_WEBHOOK_ASK=http://n8n:5678/webhook-test/chatbot-unlp
       - N8N_WEBHOOK_PDF=http://n8n:5678/webhook-test/pdf-ingestion
       - WHATSAPP_TOKEN=${WHATSAPP_TOKEN}

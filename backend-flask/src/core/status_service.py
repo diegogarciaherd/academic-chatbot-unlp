@@ -2,7 +2,6 @@ import requests
 import os
 
 # --- CONFIGURACIÓN DE URLS ---
-# Basado en tu documentación:
 # Producción: https://gestiondocente.info.unlp.edu.ar
 # Desarrollo: http://163.10.22.42
 FACULTY_BASE_URL = os.getenv("FACULTY_API_URL", "https://gestiondocente.info.unlp.edu.ar")
@@ -11,7 +10,13 @@ FACULTY_BASE_URL = os.getenv("FACULTY_API_URL", "https://gestiondocente.info.unl
 FACULTY_HEALTH_ENDPOINT = "/reservas/api/consulta/estadoactual"
 
 # URL de n8n (Orquestador IA)
-N8N_BASE_URL = os.getenv("N8N_HOST", "http://localhost:5678")
+# Se construye a partir de N8N_HOST y N8N_PORT si es necesario. Acepta valores con o sin esquema.
+_n8n_host = os.getenv("N8N_HOST", "n8n")
+_n8n_port = os.getenv("N8N_PORT", "5678")
+if _n8n_host.startswith("http://") or _n8n_host.startswith("https://"):
+    N8N_BASE_URL = f"{_n8n_host.rstrip('/') }:{_n8n_port}" if ":" not in _n8n_host.split("//", 1)[1] else _n8n_host.rstrip('/')
+else:
+    N8N_BASE_URL = f"http://{_n8n_host}:{_n8n_port}"
 
 def check_service_health(name, url, method="GET", timeout=3):
     """
@@ -20,10 +25,17 @@ def check_service_health(name, url, method="GET", timeout=3):
     try:
         response = requests.request(method, url, timeout=timeout)
         
-        # Consideramos 'Operativo' si el código es 200-299
-        is_active = 200 <= response.status_code < 300
-        
-        status_label = "Operativo" if is_active else f"Error ({response.status_code})"
+        # Consideramos 'Operativo' si el código es 200-299.
+        # Además tratamos 401/403 como señal de que el servicio está levantado
+        # pero requiere autenticación (caso típico de n8n con BASIC_AUTH activo).
+        is_active = 200 <= response.status_code < 300 or response.status_code in (401, 403)
+
+        if 200 <= response.status_code < 300:
+            status_label = "Operativo"
+        elif response.status_code in (401, 403):
+            status_label = f"Operativo (Autenticación requerida: {response.status_code})"
+        else:
+            status_label = f"Error ({response.status_code})"
         
         return {
             "name": name,
