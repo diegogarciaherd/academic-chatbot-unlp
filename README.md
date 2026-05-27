@@ -93,8 +93,13 @@ qdrant | Qdrant gRPC listening on 6334
 Verificá que los servicios estén activos:
 
 - **Flask** → http://localhost:5000
-- **N8n** → http://localhost:5678 (usuario: `admin` / contraseña: `admin123`)
+- **N8n** → http://localhost:5678 
 - **Qdrant** → http://localhost:6333/dashboard
+
+## Screenshots 
+
+![alt text](image.png)
+
 
 ---
 
@@ -103,7 +108,7 @@ Verificá que los servicios estén activos:
 ### 1. Importar el workflow
 
 1. Abrí http://localhost:5678
-2. Iniciá sesión con `admin` / `admin123` (o cualquier credencial personal)
+2. Iniciá sesión con tus credenciales personales
 3. En el menú: **Workflows → Import from file**
 4. Seleccioná el archivo `chatbot_unlp_v8.2json`(ultima version) de la carpeta `n8n/workflows/`
 
